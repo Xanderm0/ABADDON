@@ -1,0 +1,89 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Usuarios | Abaddon Store{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-admin-section">
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Gestión de Usuarios</h2>
+            <p>Administra los usuarios dentro del sistema.</p>
+        </div>
+        <div class="ab-action-group">
+            <a href="{% url 'usuario_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-square-fill"></i>
+            </a>
+            <a href="{% url 'export_pdf_table' 'usuarios' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark">
+                <i class="bi bi-filetype-pdf"></i>
+            </a>
+        </div>
+    </div>
+    <form method="get" class="filter-bar mb-4">
+        <div class="form-row align-items-end">
+            <div class="col-md-5 mb-3">
+                <label for="q">Buscar</label>
+                <input type="text" class="form-control" id="q" name="q" value="{{ query }}"
+                    placeholder="Nombre o Correo electrónico.">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="rol">Rol</label>
+                <select class="form-control" id="rol" name="rol">
+                    <option value="" {% if not selected_rol %}selected{% endif %}>Todos</option>
+                    <option value="administrador" {% if selected_rol == 'administrador' %}selected{% endif %}>Administrador</option>
+                    <option value="vendedor" {% if selected_rol == 'vendedor' %}selected{% endif %}>Vendedor</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="estado">Estado</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="" {% if not selected_estado %}selected{% endif %}>Todos</option>
+                    <option value="activo" {% if selected_estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if selected_estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+            <div class="col-md-1 mb-3">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th><center><i class="bi bi-gear-fill"></i></center></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.rol }}</td>
+                    <td>{% if usuario.estado %}Activo{% else %}Inactivo{% endif %}</td>
+                    <td>
+                        <center>
+                            <a href="{% url 'usuario_update' usuario.pk %}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'usuario_delete' usuario.pk %}">
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </center>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No hay usuarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

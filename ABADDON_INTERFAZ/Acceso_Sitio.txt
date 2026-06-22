@@ -1,0 +1,15 @@
+USUARIOS Y CONTRASEÑAS
+
+ADMINISTRADOR
+- Instructora Angelica Triviño
+	Correo: angelicat20@abaddon.com
+	Contraseña: **InsAngelica20
+
+- Instructora Martha Cuervo
+	Correo: marthac30@abaddon.com
+	Contraseña: InsMartha30//
+
+VENDEDOR
+- Adonis Henao
+	Correo: adonish@abaddon.com
+	Contraseña: Abad*Adonis15

@@ -1,0 +1,129 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Detalle de Venta | Panel ABADDON{% endblock %}
+{% block admin_title %}Detalle de Venta{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-admin-section">
+
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Venta #{{ venta.id_venta }}</h2>
+            <p>Consulta la información general de la venta y los productos asociados.</p>
+        </div>
+
+        <a href="{% url 'venta_list' %}" class="btn btn-outline-dark">
+            Volver a ventas
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="ab-status-item">
+                <strong>Cliente</strong>
+                <span><b>{{ venta.nombre_cliente }}</b></span>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="ab-status-item">
+                <strong>Correo</strong>
+                <span><b>{{ venta.email_cliente }}</b></span>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="ab-status-item">
+                <strong>Fecha</strong>
+                <span><b>{{ venta.fecha|date:"d/m/Y H:i" }}</b></span>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="ab-status-item">
+                <strong>Método de pago</strong>
+                <span><b>
+                    {% if venta.metodo_pago %}
+                        {{ venta.metodo_pago.nombre }}
+                    {% else %}
+                        Sin método registrado
+                    {% endif %}
+                </b></span>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="ab-status-item">
+                <strong>Empleado</strong>
+                <span><b>
+                    {% if venta.empleado %}
+                        {{ venta.empleado.nombre }}
+                    {% else %}
+                        No asignado
+                    {% endif %}
+                </b></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ab-panel-heading">
+        <div>
+            <h2>Productos de la venta</h2>
+            <p>Detalle de productos, cantidades, precios y subtotales.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover ab-admin-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio unitario</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for detalle in detalles_venta %}
+                    <tr>
+                        <td>
+                            <strong>
+                                {% if detalle.producto %}
+                                    {{ detalle.producto.nombre }}
+                                {% else %}
+                                    Producto eliminado
+                                {% endif %}
+                            </strong>
+                        </td>
+
+                        <td>${{ detalle.precio_unitario }}</td>
+                        <td>{{ detalle.cantidad }}</td>
+                        <td>
+                            <strong>${{ detalle.subtotal }}</strong>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            No hay productos registrados en esta venta.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+            <tfoot>
+                <tr style="color: var(--accent); text-transform: uppercase;">
+                    <td colspan="3" class="text-right">
+                        <strong><center>Total de la venta</center></strong>
+                    </td>
+                    <td>
+                        <strong>${{ total_venta }}</strong>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</section>
+{% endblock %}

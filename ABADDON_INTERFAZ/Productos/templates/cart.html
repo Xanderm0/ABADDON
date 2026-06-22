@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Carrito - Abaddon Store{% endblock %}
+
+{% block content %}
+<section class="section-block bg-soft">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <div class="soft-panel">
+                    <div class="section-heading mb-4">
+                        <span class="section-kicker">Compra</span>
+                        <h2 class="section-title mb-0">Tu carrito</h2>
+                    </div>
+
+                    {% if cart_items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover cart-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Subtotal</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for item in cart_items %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>${{ item.price }}</td>
+                                        <td>
+                                            <div class="cart-quantity-stepper">
+                                                <form action="{% url 'update_cart_quantity' item.id %}" method="post" class="cart-stepper-form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="quantity" value="{{ item.quantity|add:'-1' }}">
+                                                    <button type="submit" class="cart-stepper-btn" aria-label="Disminuir cantidad">
+                                                        −
+                                                    </button>
+                                                </form>
+                                                <span class="cart-stepper-value">
+                                                    {{ item.quantity }}
+                                                </span>
+                                                <form action="{% url 'update_cart_quantity' item.id %}" method="post" class="cart-stepper-form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="quantity" value="{{ item.quantity|add:'1' }}">
+                                                    <button type="submit" class="cart-stepper-btn" aria-label="Aumentar cantidad">
+                                                        +
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>${{ item.subtotal }}</strong>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-outline-dark">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <a href="{% url 'catalogo' %}" class="btn btn-outline-dark">
+                                                Seguir comprando
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <h3>Tu carrito está vacío</h3>
+                            <p class="text-muted mb-4">
+                                Agrega productos desde la tienda para continuar con tu compra.
+                            </p>
+
+                            <a href="{% url 'catalogo' %}" class="btn btn-primary">
+                                Volver a la tienda
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if cart_items %}
+            <div class="col-md-4 mb-4">
+                <div class="cart-summary">
+                    <h2>Resumen y pago</h2>
+                    <p class="text-muted mb-4">
+                        Completa tus datos para confirmar la compra.
+                    </p>
+
+                    <form action="{% url 'process_sale' %}" method="post">
+                        {% csrf_token %}
+
+                        {{ form|crispy }}
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="font-weight-bold">Total:</span>
+                            <span class="product-price mb-0">${{ total }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            Confirmar compra
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

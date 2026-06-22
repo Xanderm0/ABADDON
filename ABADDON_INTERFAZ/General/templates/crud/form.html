@@ -1,0 +1,37 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} | Panel ABADDON{% endblock %}
+
+{% block admin_title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-form-panel">
+    <div class="ab-panel-heading">
+        <h2>{{ title }}</h2>
+        <p>Completa la información solicitada y guarda los cambios.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate class="ab-crispy-form">
+        {% csrf_token %}
+
+        {{ form|crispy }}
+
+        <div class="ab-form-actions">
+            <button type="submit" class="btn btn-dark">
+                Guardar
+            </button>
+
+            {% if cancel_url %}
+                <a href="{% url cancel_url %}" class="btn btn-outline-dark">
+                    Cancelar
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-dark">
+                    Cancelar
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+{% endblock %}

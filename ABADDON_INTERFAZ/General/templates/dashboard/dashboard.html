@@ -1,0 +1,315 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Dashboard | Abaddon Store{% endblock %}
+
+{% block admin_title %}Panel de control{% endblock %}
+
+{% block admin_content %}
+<section class="ab-welcome-card">
+    <div>
+        <h1>Bienvenido, {% if user.nombre %}{{ user.nombre }}{% else %}Administrador{% endif %}</h1>
+        <p>Aquí tienes un resumen general del estado de tu tienda.</p>
+    </div>
+
+    <a href="{% url 'home' %}" class="ab-dark-button">Ver tienda</a>
+</section>
+
+<section class="ab-stats-grid {% if user.is_authenticated and user.rol|lower == 'administrador' %}ab-stats-admin{% else %}ab-stats-vendedor{% endif %}">
+    <article class="ab-stat-card">
+        <div class="ab-stat-icon">
+            <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div>
+            <span>Productos</span>
+            <strong>{{ total_productos|default:"0" }}</strong>
+            <p>En venta: {{ total_productos_en_venta|default:"0" }}</p>
+        </div>
+    </article>
+
+    <article class="ab-stat-card">
+        <div class="ab-stat-icon">
+            <i class="bi bi-tags-fill"></i>
+        </div>
+        <div>
+            <span>Categorías</span>
+            <strong>{{ total_categorias|default:"0" }}</strong>
+            <p>Registradas: {{ total_categorias|default:"0" }}</p>
+        </div>
+    </article>
+    {% if user.is_authenticated and user.rol|lower == 'administrador' %}
+    <article class="ab-stat-card">
+        <div class="ab-stat-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div>
+            <span>Usuarios</span>
+            <strong>{{ total_usuarios|default:"0" }}</strong>
+            <p>Activos: {{ total_usuarios_activos|default:"0" }}</p>
+        </div>
+    </article>
+    {% endif %}
+    <article class="ab-stat-card">
+        <div class="ab-stat-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+        <div>
+            <span>Ventas</span>
+            <strong>{{ total_ventas|default:"0" }}</strong>
+            <p>Registradas: {{ total_ventas|default:"0" }}</p>
+        </div>
+    </article>
+</section>
+
+<section class="ab-dashboard-grid ab-status-split-grid {% if user.is_authenticated and user.rol|lower == 'administrador' %}ab-grid-admin{% else %}ab-grid-vendedor{% endif %}">
+
+    <aside class="ab-panel ab-status-panel">
+        <div class="ab-panel-heading">
+            <div>
+                <h2>Estado de productos</h2>
+                <p>Resumen del inventario según disponibilidad.</p>
+            </div>
+        </div>
+
+        <div class="ab-status-list ab-status-list-detailed">
+
+            <div class="ab-status-item ab-status-item-detailed">
+                <div class="ab-status-item-head">
+                    <span><b>PRODUCTOS SIN STOCK</b></span>
+                    <strong>{{ total_productos_sin_stock|default:"0" }}</strong>
+                </div>
+
+                <div class="ab-status-preview">
+                    {% if productos_sin_stock_lista %}
+                        {% for producto in productos_sin_stock_lista|slice:":4" %}
+                            <a href="{% url 'producto_update' producto.pk %}" class="ab-status-preview-row">
+                                <div>
+                                    <strong>{{ producto.nombre }}</strong>
+                                    <span>
+                                        {% if producto.categoria %}
+                                            {{ producto.categoria.nombre_categoria }}
+                                        {% else %}
+                                            Sin categoría
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <em>Stock: {{ producto.stock }}</em>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ab-status-empty">No hay productos agotados.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="ab-status-item ab-status-item-detailed">
+                <div class="ab-status-item-head">
+                    <span><b>STOCK INSUFICIENTE</b></span>
+                    <strong>{{ total_productos_stock_insuficiente|default:"0" }}</strong>
+                </div>
+
+                <div class="ab-status-preview">
+                    {% if productos_stock_insuficiente_lista %}
+                        {% for producto in productos_stock_insuficiente_lista|slice:":4" %}
+                            <a href="{% url 'producto_update' producto.pk %}" class="ab-status-preview-row">
+                                <div>
+                                    <strong>{{ producto.nombre }}</strong>
+                                    <span>
+                                        {% if producto.categoria %}
+                                            {{ producto.categoria.nombre_categoria }}
+                                        {% else %}
+                                            Sin categoría
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <em>Stock: {{ producto.stock }}</em>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ab-status-empty">No hay productos con stock insuficiente.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="ab-status-item ab-status-item-detailed">
+                <div class="ab-status-item-head">
+                    <span><b>PRODUCTOS DISPONIBLES</b></span>
+                    <strong>{{ total_productos_en_venta|default:"0" }}</strong>
+                </div>
+
+                <div class="ab-status-preview">
+                    {% if productos_en_venta_lista %}
+                        {% for producto in productos_en_venta_lista|slice:":4" %}
+                            <a href="{% url 'producto_update' producto.pk %}" class="ab-status-preview-row">
+                                <div>
+                                    <strong>{{ producto.nombre }}</strong>
+                                    <span>
+                                        {% if producto.categoria %}
+                                            {{ producto.categoria.nombre_categoria }}
+                                        {% else %}
+                                            Sin categoría
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <em>Stock: {{ producto.stock }}</em>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ab-status-empty">No hay productos en venta.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </aside>
+    {% if user.is_authenticated and user.rol|lower == 'administrador' %}
+    <aside class="ab-panel ab-status-panel">
+        <div class="ab-panel-heading">
+            <div>
+                <h2>Estado de usuarios</h2>
+                <p>Resumen de usuarios activos e inactivos.</p>
+            </div>
+        </div>
+
+        <div class="ab-status-list ab-status-list-detailed">
+
+            <div class="ab-status-item ab-status-item-detailed">
+                <div class="ab-status-item-head">
+                    <span><b>USUARIOS ACTIVOS</b></span>
+                    <strong>{{ total_usuarios_activos|default:"0" }}</strong>
+                </div>
+
+                <div class="ab-status-preview">
+                    {% if usuarios_activos_lista %}
+                        {% for usuario in usuarios_activos_lista|slice:":4" %}
+                            <a href="{% url 'usuario_update' usuario.pk %}" class="ab-status-preview-row">
+                                <div>
+                                    <strong>
+                                        {% if usuario.nombre %}
+                                            {{ usuario.nombre }}
+                                        {% else %}
+                                            Usuario sin nombre
+                                        {% endif %}
+                                    </strong>
+                                    <span>{{ usuario.email|default:"Sin correo registrado" }}</span>
+                                </div>
+                                <em>{{ usuario.rol|default:"Usuario" }}</em>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ab-status-empty">No hay usuarios activos.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="ab-status-item ab-status-item-detailed">
+                <div class="ab-status-item-head">
+                    <span><b>USUARIOS INACTIVOS</b></span>
+                    <strong>{{ total_usuarios_inactivos|default:"0" }}</strong>
+                </div>
+
+                <div class="ab-status-preview">
+                    {% if usuarios_inactivos_lista %}
+                        {% for usuario in usuarios_inactivos_lista|slice:":4" %}
+                            <a href="{% url 'usuario_update' usuario.pk %}" class="ab-status-preview-row">
+                                <div>
+                                    <strong>
+                                        {% if usuario.nombre %}
+                                            {{ usuario.nombre }}
+                                        {% else %}
+                                            Usuario sin nombre
+                                        {% endif %}
+                                    </strong>
+                                    <span>{{ usuario.email|default:"Sin correo registrado" }}</span>
+                                </div>
+                                <em>{{ usuario.rol|default:"Usuario" }}</em>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="ab-status-empty">No hay usuarios inactivos.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </aside>
+    {% endif %}
+</section>
+
+<section class="ab-bottom-grid">
+    <div class="ab-panel">
+        <div class="ab-panel-heading ab-panel-heading-row">
+            <div>
+                <h2>Últimos productos</h2>
+                <p>Los últimos productos registrados en el sistema.</p>
+            </div>
+
+            <a href="{% url 'producto_admin_list' %}">Ver todos</a>
+        </div>
+
+        {% if ultimos_productos %}
+            <div class="ab-table-list">
+                {% for producto in ultimos_productos %}
+                    <div class="ab-table-row">
+                        <div class="ab-product-mini">
+                            <div class="ab-product-thumb">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <span>A</span>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <strong>{{ producto.nombre }}</strong>
+                                <span>
+                                    {% if producto.categoria %}
+                                        {{ producto.categoria.nombre_categoria }}
+                                    {% else %}
+                                        Sin categoría
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <span>${{ producto.precio }}</span>
+                        <span>Stock: {{ producto.stock }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="ab-empty-state">
+                <strong>No hay productos registrados.</strong>
+                <span>Cuando agregues productos, aparecerán aquí.</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="ab-panel">
+        <div class="ab-panel-heading ab-panel-heading-row">
+            <div>
+                <h2>Últimas ventas</h2>
+                <p>Las ventas más recientes registradas.</p>
+            </div>
+
+            <a href="{% url 'venta_list' %}">Ver todas</a>
+        </div>
+
+        {% if ultimas_ventas %}
+            <div class="ab-table-list">
+                {% for venta in ultimas_ventas %}
+                    <div class="ab-table-row">
+                        <strong>Venta #{{ venta.id_venta }}</strong>
+                        <span>{{ venta.nombre_cliente }}</span>
+                        <span>{{ venta.fecha|date:"d/m/Y H:i" }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="ab-empty-state">
+                <strong>No hay ventas registradas.</strong>
+                <span>Cuando registres ventas, aparecerán aquí.</span>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

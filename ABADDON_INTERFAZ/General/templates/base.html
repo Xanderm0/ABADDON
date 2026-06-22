@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Abaddon Store{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/abaddon.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top site-navbar">
+        <div class="container">
+            <a class="logo-text" href="{% url 'home' %}">ABADDON</a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">
+                        Inicio
+                    </a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'catalogo' %}">
+                        Catálogo
+                    </a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'view_cart' %}">
+                        Carrito
+                    </a></li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}">
+                            <div class="ab-admin-user">
+                                <div class="ab-user-avatar">
+                                    {% if user.nombre %}
+                                        {{ user.nombre|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>
+                                        {% if user.nombre %}
+                                            {{ user.nombre }}
+                                        {% else %}
+                                            Administrador
+                                        {% endif %}
+                                    </strong>
+                                    <span>{{ user.rol|default:"Administrador" }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}">
+                            <div class="ab-admin-user">
+                                <div class="ab-user-avatar">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% block hero %}{% endblock %}
+
+    <main class="site-main">
+        <div class="container">
+            {% if user.is_authenticated %}
+            {% else %}
+                {% if messages %}
+                    <div class="messages-wrapper">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'secondary' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mb-4">
+                    <h5>ABADDON</h5>
+                    <p class="text-muted mb-0">Moda alternativa con identidad oscura, urbana y auténtica. Una tienda pensada para vestir con carácter propio.</p>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5>Navegación</h5>
+                    <a href="{% url 'home' %}" class="footer-link">Inicio</a>
+                    <a href="{% url 'producto_list' %}" class="footer-link">Catálogo</a>
+                    <a href="{% url 'quienes_somos' %}" class="footer-link">Quiénes somos</a>
+                    <a href="{% url 'login' %}" class="footer-link">Acceso del personal</a>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <h5>Síguenos</h5>
+                    <a href="https://www.instagram.com/xanderm_0/" target="_blank" rel="noopener" class="footer-link">@xanderm_0</a>
+                    <a href="https://www.instagram.com/x_d0n4t3ll0_x/" target="_blank" rel="noopener" class="footer-link">@x_d0n4t3ll0_x</a>
+                    <a href="https://www.instagram.com/michael_.823/" target="_blank" rel="noopener" class="footer-link">@michael_.823</a>
+                    <a href="https://www.instagram.com/thesmith0706/" target="_blank" rel="noopener" class="footer-link">@thesmith0706</a>
+
+                </div>
+            </div>
+
+            <hr>
+            <div class="text-center text-muted pt-3">
+                <small>&copy; 2026 Abaddon Store. Todos los derechos reservados.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/abaddon.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

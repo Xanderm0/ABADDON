@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #111111;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-size: 13px;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 10px;
+            color: #555555;
+            margin-bottom: 18px;
+        }
+
+        .venta-box {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+
+        .venta-info {
+            margin-bottom: 8px;
+        }
+
+        .venta-info strong {
+            display: inline-block;
+            width: 90px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #111111;
+            color: #ffffff;
+            padding: 6px;
+            text-align: left;
+            font-size: 9px;
+        }
+
+        td {
+            border: 1px solid #dddddd;
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>{{ title }}</h1>
+<p class="subtitle">Reporte multitabla de ventas, clientes, métodos de pago y productos vendidos.</p>
+
+{% for bloque in ventas_reporte %}
+<div class="venta-box">
+
+    <h2>Venta #{{ bloque.venta.id_venta }}</h2>
+
+    <div class="venta-info">
+        <p><strong>Cliente:</strong> {{ bloque.venta.nombre_cliente }}</p>
+        <p><strong>Correo:</strong> {{ bloque.venta.email_cliente }}</p>
+        <p><strong>Fecha:</strong> {{ bloque.venta.fecha|date:"d/m/Y H:i" }}</p>
+        <p>
+            <strong>Estado:</strong>
+            {% if bloque.venta.estado %}
+                Activa
+            {% else %}
+                Anulada
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Empleado:</strong>
+            {% if bloque.venta.empleado %}
+                {{ bloque.venta.empleado.nombre }}
+            {% else %}
+                No asignado
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Pago:</strong>
+            {% if bloque.venta.metodo_pago %}
+                {{ bloque.venta.metodo_pago.nombre }}
+            {% else %}
+                Sin método
+            {% endif %}
+        </p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for detalle in bloque.detalles %}
+            <tr>
+                <td>
+                    {% if detalle.producto %}
+                        {{ detalle.producto.nombre }}
+                    {% else %}
+                        Producto eliminado
+                    {% endif %}
+                </td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>${{ detalle.precio_unitario }}</td>
+                <td>${{ detalle.subtotal }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Esta venta no tiene detalles registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-right total">Total venta:</td>
+                <td class="total">${{ bloque.total_venta }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+</div>
+{% empty %}
+<p>No hay ventas registradas.</p>
+{% endfor %}
+
+</body>
+</html>

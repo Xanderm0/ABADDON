@@ -1,0 +1,186 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Ventas | Abaddon Store{% endblock %}
+
+{% block admin_content %}
+    
+<section class="ab-panel ab-admin-section">
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Gestión de Ventas</h2>
+            <p>Administra las ventas y cotizaciones realizadas.</p>
+        </div>
+
+        <div class="ab-action-group">
+            <a href="{% url 'metodo_pago_list' %}" class="btn btn-outline-dark">Método de Pago</a>
+
+            <a href="{% url 'catalogo' %}" class="btn btn-primary">
+                <i class="bi bi-plus-square-fill"></i>
+            </a>
+
+            <a href="{% url 'export_pdf_table' 'ventas' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark" title="Venta General">
+                <i class="bi bi-filetype-pdf"></i>
+            </a>
+
+            <a href="{% url 'export_pdf_ventas_detalle' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark" title="Detalle de Venta">
+                <i class="bi bi-receipt-cutoff"></i>
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="filter-bar ab-admin-filter mb-4">
+        <div class="form-row align-items-end">
+
+            <div class="col-md-8 mb-3">
+                <label for="q">Buscar venta</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="q"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Nombre o correo electrónico"
+                >
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="tipo_venta">Tipo de venta</label>
+                <select class="form-control" id="tipo_venta" name="tipo_venta">
+                    <option value="">Todos</option>
+
+                    {% for valor, texto in tipos_venta %}
+                        <option value="{{ valor }}" {% if selected_tipo_venta == valor %}selected{% endif %}>
+                            {{ texto }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="metodo_pago">Método de pago</label>
+                <select class="form-control" id="metodo_pago" name="metodo_pago">
+                    <option value="">Todos</option>
+
+                    {% for metodo in metodos_pago %}
+                        <option value="{{ metodo.id_metodo_pago }}" {% if selected_metodo_pago == metodo.id_metodo_pago|stringformat:"s" %}selected{% endif %}>
+                            {{ metodo.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-3">
+                <label for="estado">Estado</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="activa" {% if selected_estado == 'activa' %}selected{% endif %}>Activa</option>
+                    <option value="anulada" {% if selected_estado == 'anulada' %}selected{% endif %}>Anulada</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="fecha_inicio">Fecha inicial</label>
+                <input
+                    type="date"
+                    class="form-control"
+                    id="fecha_inicio"
+                    name="fecha_inicio"
+                    value="{{ fecha_inicio }}"
+                >
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="fecha_fin">Fecha final</label>
+                <input
+                    type="date"
+                    class="form-control"
+                    id="fecha_fin"
+                    name="fecha_fin"
+                    value="{{ fecha_fin }}"
+                >
+            </div>
+
+            <div class="col-md-1 mb-3">
+                <button class="btn btn-primary btn-block" type="submit" title="Buscar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+        </div>
+
+        {% if query or fecha_inicio or fecha_fin or selected_tipo_venta or selected_metodo_pago or selected_estado %}
+            <div class="mt-2">
+                <span class="text-muted">
+                    Ventas encontradas: {{ total_ventas_filtradas|default:"0" }}
+                </span>
+
+                <a href="{% url 'venta_list' %}" class="ml-3">
+                    Limpiar filtros
+                </a>
+            </div>
+        {% endif %}
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Cliente</th>
+                    <th>Correo</th>
+                    <th>Método</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>
+                        <center><i class="bi bi-gear-fill"></i></center>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for venta in ventas %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'detalle_venta' venta.id_venta %}" title="Ver detalle de venta">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </a>
+                        </td>
+
+                        <td>{{ venta.nombre_cliente }}</td>
+                        <td>{{ venta.email_cliente }}</td>
+                        <td>{{ venta.metodo_pago.nombre }}</td>
+                        <td>{{ venta.get_tipo_venta_display }}</td>
+
+                        <td>
+                            {% if venta.estado %}
+                                <span class="ab-badge ab-badge-ok">Activa</span>
+                            {% else %}
+                                <span class="ab-badge ab-badge-off">Anulada</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ venta.fecha }}</td>
+
+                        <td>
+                            <center>
+                                <a href="{% url 'venta_update' venta.id_venta %}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <a href="{% url 'venta_delete' venta.id_venta %}">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </a>
+                            </center>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8">No hay ventas registradas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

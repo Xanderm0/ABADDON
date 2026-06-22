@@ -1,0 +1,82 @@
+[
+{
+"nombre": "Camisa Negra Ritual",
+"precio": 145000,
+"stock": 18,
+"nombre_categoria": "Ropa",
+"descripcion": "Camisa negra de estilo alternativo con diseño sobrio y detalles oscuros.",
+"estado": true
+},
+{
+"nombre": "Chaqueta Denim Dark",
+"precio": 320000,
+"stock": 10,
+"nombre_categoria": "Ropa",
+"descripcion": "Chaqueta de mezclilla negra con acabado urbano y estética gótica.",
+"estado": true
+},
+{
+"nombre": "Anillo Eclipse Negro",
+"precio": 95000,
+"stock": 25,
+"nombre_categoria": "Joyería",
+"descripcion": "Anillo metálico de tono oscuro con diseño inspirado en un eclipse.",
+"estado": true
+},
+{
+"nombre": "Collar Luna Carmesí",
+"precio": 125000,
+"stock": 16,
+"nombre_categoria": "Joyería",
+"descripcion": "Collar con dije de luna en acabado oscuro y detalles de color carmesí.",
+"estado": true
+},
+{
+"nombre": "Pulsera Cadenas Nocturnas",
+"precio": 78000,
+"stock": 30,
+"nombre_categoria": "Joyería",
+"descripcion": "Pulsera de cadenas metálicas con diseño fuerte y estilo alternativo.",
+"estado": true
+},
+{
+"nombre": "Correa de Cuero Abaddon",
+"precio": 110000,
+"stock": 20,
+"nombre_categoria": "Accesorios",
+"descripcion": "Correa negra de cuero sintético con detalles metálicos y acabado resistente.",
+"estado": true
+},
+{
+"nombre": "Bolso Cruzado Sombra",
+"precio": 185000,
+"stock": 12,
+"nombre_categoria": "Accesorios",
+"descripcion": "Bolso cruzado negro con compartimentos internos y diseño urbano oscuro.",
+"estado": true
+},
+{
+"nombre": "Set de Púas Inferno",
+"precio": 35000,
+"stock": 40,
+"nombre_categoria": "Instrumentos",
+"descripcion": "Paquete de púas para guitarra con diseño oscuro y acabado resistente.",
+"estado": true
+},
+{
+"nombre": "Cable Guitarra Blackline 5m",
+"precio": 90000,
+"stock": 22,
+"nombre_categoria": "Instrumentos",
+"descripcion": "Cable blindado para guitarra eléctrica de cinco metros con buena resistencia.",
+"estado": true
+},
+{
+"nombre": "Pedal Overdrive Nocturno",
+"precio": 420000,
+"stock": 8,
+"nombre_categoria": "Instrumentos",
+"descripcion": "Pedal de overdrive para guitarra con sonido potente y carácter oscuro.",
+"estado": true
+}
+]

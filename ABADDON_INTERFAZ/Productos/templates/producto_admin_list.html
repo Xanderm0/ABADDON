@@ -1,0 +1,107 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Productos | Panel ABADDON{% endblock %}
+{% block admin_title %}Panel de control{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-admin-section">
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Gestión de productos</h2>
+            <p>Administra catálogo, precios, stock, imágenes y disponibilidad.</p>
+        </div>
+        <div class="ab-action-group">
+            <a href="{% url 'categoria_list' %}" class="btn btn-outline-dark">Categorías</a>
+            <a href="{% url 'producto_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-square-fill"></i>
+            </a>
+            {% if user.is_authenticated and user.rol|lower == 'administrador' %}
+            <a href="{% url 'carga_masiva' %}" class="btn btn-primary" title="Carga de Productos">
+                <i class="bi bi-cloud-upload-fill"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'export_pdf_table' 'productos' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark">
+                <i class="bi bi-filetype-pdf"></i>
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="filter-bar ab-admin-filter mb-4">
+        <div class="form-row align-items-end">
+            <div class="col-md-7 mb-3">
+                <label for="q">Buscar producto</label>
+                <input type="text" class="form-control" id="q" name="q" value="{{ query }}" placeholder="Nombre del producto.">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="categoria">Categoría</label>
+                <select class="form-control" id="categoria" name="categoria">
+                    <option value="">Todas</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id_categoria }}" {% if selected_cat == categoria.id_categoria|stringformat:'s' %}selected{% endif %}>
+                            {{ categoria.nombre_categoria }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-1 mb-3">
+                <button class="btn btn-primary btn-block" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover ab-admin-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th><center><i class="bi bi-gear-fill"></i></center></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td>
+                            <strong>{{ producto.nombre }}</strong>
+                        </td>
+                        <td>{{ producto.categoria.nombre_categoria }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>{{ producto.stock }}</td>
+                        <td>
+                            {% if producto.estado and producto.stock > 0 %}
+                                <span class="ab-badge ab-badge-ok">Activo</span>
+                            {% elif producto.stock == 0 %}
+                                <span class="ab-badge ab-badge-warn">Sin stock</span>
+                            {% else %}
+                                <span class="ab-badge ab-badge-off">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="ab-actions-cell">
+                            <center>
+                                <a href="{% url 'producto_update' producto.id_producto %}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="{% url 'producto_delete' producto.id_producto %}">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </a>
+                            </center>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No hay productos registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

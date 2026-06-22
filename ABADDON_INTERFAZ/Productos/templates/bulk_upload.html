@@ -1,0 +1,61 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Carga Masiva - Abaddon{% endblock %}
+{% block admin_title %}Carga Masiva{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-admin-section">
+
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Carga Masiva de Datos en Productos</h2>
+            <p>Importa registros masivamente a través de archivos CSV, JSON o SQL.</p>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="ab-crispy-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="file">Sube tu archivo (.CSV, .JSON)</label>
+            <input
+                type="file"
+                name="file"
+                id="file"
+                class="form-control"
+                accept=".csv, .json, .sql"
+                required
+            >
+        </div>
+        <input type="hidden" name="model_type" value="productos">
+        <div class="ab-panel mt-4 mb-4">
+            <div class="ab-panel-heading">
+                <div>
+                    <h2>Instrucciones de formato</h2>
+                    <p>Ten en cuenta la estructura requerida antes de realizar la carga.</p>
+                </div>
+            </div>
+
+            <div class="ab-status-list">
+                <div class="ab-status-item">
+                    <strong>CSV/JSON para productos</strong>
+                    <span>
+                        nombre, precio, stock, nombre_categoria o id_categoria, descripcion opcional, estado opcional.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ab-form-actions">
+            <button type="submit" class="btn btn-primary">
+                Iniciar carga masiva
+            </button>
+
+            <a href="{% url 'producto_admin_list' %}" class="btn btn-outline-dark">
+                Cancelar y volver
+            </a>
+        </div>
+    </form>
+
+</section>
+{% endblock %}

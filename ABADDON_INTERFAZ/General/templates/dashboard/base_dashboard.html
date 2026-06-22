@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .site-navbar,
+    .footer {
+        display: none;
+    }
+
+    .site-main {
+        min-height: 100vh;
+    }
+</style>
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="ab-admin-layout">
+    <aside class="ab-admin-sidebar">
+        <div class="ab-admin-brand">
+            <strong>ABADDON</strong>
+            <span>{{ user.rol|default:"Admin" }}</span>
+        </div>
+
+        {% with current_url=request.resolver_match.url_name %}
+        <nav class="ab-admin-nav">
+            <a href="{% url 'dashboard' %}" class="{% if current_url == 'dashboard' %}active{% endif %}">Dashboard</a>
+
+            <a href="{% url 'producto_admin_list' %}" class="{% if current_url == 'producto_admin_list' or current_url == 'producto_create' or current_url == 'producto_update' or current_url == 'producto_delete' %}active{% endif %}">Productos</a>
+
+            <a href="{% url 'categoria_list' %}" class="{% if current_url == 'categoria_list' or current_url == 'categoria_create' or current_url == 'categoria_update' or current_url == 'categoria_delete' %}active{% endif %}">Categorías</a>
+
+            <a href="{% url 'metodo_pago_list' %}" class="{% if current_url == 'metodo_pago_list' or current_url == 'metodo_pago_create' or current_url == 'metodo_pago_update' or current_url == 'metodo_pago_delete' %}active{% endif %}">Métodos de Pago</a>
+
+            <a href="{% url 'venta_list' %}" class="{% if current_url == 'venta_list' or current_url == 'venta_update' or current_url == 'venta_delete' %}active{% endif %}">Ventas</a>
+
+            {% if user.is_authenticated and user.rol|lower == 'administrador' %}
+            <a href="{% url 'usuario_list' %}" class="{% if current_url == 'usuario_list' or current_url == 'usuario_create' or current_url == 'usuario_update' or current_url == 'usuario_delete' %}active{% endif %}">Usuarios</a>
+            {% endif %}
+
+            <a href="{% url 'reportes' %}">Reportes</a>
+
+            <div class="ab-admin-nav-title">Sistema</div>
+            <a href="{% url 'home' %}">Ver tienda</a>
+
+            <div class="ab-admin-nav-title">Cuenta</div>
+            <a href="{% url 'usuario_update' user.pk %}">Editar Perfil</a>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+        </nav>
+        {% endwith %}
+    </aside>
+
+    <main class="ab-admin-main">
+        <header class="ab-admin-topbar">
+            <div>
+                <span class="ab-topbar-title">{% block admin_title %}Panel de control{% endblock %}</span>
+            </div>
+
+            <div class="ab-admin-user">
+                <div class="ab-user-avatar">
+                    {% if user.nombre %}
+                        {{ user.nombre|first|upper }}
+                    {% else %}
+                        A
+                    {% endif %}
+                </div>
+                <div>
+                    <strong>
+                        {% if user.nombre %}
+                            {{ user.nombre }}
+                        {% else %}
+                            Administrador
+                        {% endif %}
+                    </strong>
+                    <span>{{ user.rol|default:"Admin" }}</span>
+                </div>
+            </div>
+        </header>
+
+        {% if messages %}
+            <div class="ab-admin-alerts">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'secondary' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

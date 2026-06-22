@@ -1,0 +1,42 @@
+[
+{
+"nombre": "Botas Urbanas Noctis",
+"precio": 390000,
+"stock": 14,
+"nombre_categoria": "Ropa",
+"descripcion": "Botas negras de estilo urbano con suela resistente y diseño alternativo.",
+"estado": true
+},
+{
+"nombre": "Gargantilla Espinas de Acero",
+"precio": 88000,
+"stock": 21,
+"nombre_categoria": "Joyería",
+"descripcion": "Gargantilla metálica con detalles de espinas y acabado oscuro.",
+"estado": true
+},
+{
+"nombre": "Mochila Black Raven",
+"precio": 245000,
+"stock": 11,
+"nombre_categoria": "Accesorios",
+"descripcion": "Mochila negra con compartimentos amplios y diseño inspirado en cuervos.",
+"estado": true
+},
+{
+"nombre": "Afinador Digital Shadow Tune",
+"precio": 75000,
+"stock": 28,
+"nombre_categoria": "Instrumentos",
+"descripcion": "Afinador digital compacto para guitarra y bajo con pantalla de alta visibilidad.",
+"estado": true
+},
+{
+"nombre": "Camiseta Abyss Print",
+"precio": 98000,
+"stock": 24,
+"nombre_categoria": "Ropa",
+"descripcion": "Camiseta negra con estampado oscuro de estilo alternativo.",
+"estado": true
+}
+]

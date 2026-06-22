@@ -1,0 +1,31 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{{ title }} | Panel ABADDON{% endblock %}
+{% block admin_title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-form-panel">
+    <div class="ab-panel-heading">
+        <h2>{{ title }}</h2>
+        <p>Esta acción inactivará el registro seleccionado sin borrarlo de la base de datos. Revisa antes de confirmar.</p>
+    </div>
+
+    <div class="ab-delete-box">
+        <strong>Registro seleccionado:</strong>
+        <span>{{ obj }}</span>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="ab-form-actions">
+            <button type="submit" class="btn btn-danger">Sí, confirmar</button>
+
+            {% if cancel_url %}
+                <a href="{% url cancel_url %}" class="btn btn-outline-dark">Cancelar</a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-dark">Cancelar</a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+{% endblock %}

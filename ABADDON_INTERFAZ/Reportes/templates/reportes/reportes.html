@@ -1,0 +1,96 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Reportes | Panel ABADDON{% endblock %}
+{% block admin_title %}Reportes{% endblock %}
+
+{% block admin_content %}
+<section class="ab-panel ab-admin-section">
+
+    <div class="ab-panel-heading ab-panel-heading-row">
+        <div>
+            <h2>Centro de reportes</h2>
+            <p>Selecciona el tipo de reporte, aplica filtros y descarga el PDF.</p>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-dark">
+            Volver al dashboard
+        </a>
+    </div>
+
+    <form method="get" action="{% url 'export_pdf_filtrado' %}" class="filter-bar ab-admin-filter mb-4">
+        <div class="form-row align-items-end">
+
+            <div class="col-md-4 mb-3">
+                <label for="tipo_reporte">Tipo de reporte</label>
+                <select class="form-control" id="tipo_reporte" name="tipo_reporte" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="productos">Productos</option>
+                    <option value="categorias">Categorías</option>
+                    <option value="ventas">Ventas</option>
+                    <option value="metodos_pago">Métodos de pago</option>
+                    <option value="ventas_detalle">Ventas con detalle</option>
+
+                    {% if user.is_authenticated and user.rol|lower == 'administrador' %}
+                        <option value="usuarios">Usuarios</option>
+                        <option value="general">Reporte general</option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="q">Buscar</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="q"
+                    name="q"
+                    placeholder="Nombre, cliente, correo, producto..."
+                >
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="estado">Estado</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="fecha_inicio">Fecha inicial</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="fecha_fin">Fecha final</label>
+                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Descargar PDF
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="ab-status-list">
+        <div class="ab-status-item">
+            <strong>Reportes desde tablas</strong>
+            <span>
+                También puedes descargar PDFs directamente desde productos, categorías, métodos de pago, ventas y usuarios usando los filtros activos.
+            </span>
+        </div>
+
+        <div class="ab-status-item">
+            <strong>Reportes multitabla</strong>
+            <span>
+                Ventas con detalle permite cruzar ventas, clientes, empleados, métodos de pago y productos vendidos.
+            </span>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

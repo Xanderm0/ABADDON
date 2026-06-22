@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Catálogo | Abaddon Store{% endblock %}
+
+{% block content %}
+<header class="page-header compact">
+    <div class="container">
+        <span class="section-kicker">Tienda</span>
+        <h1>Catálogo</h1>
+        <p>Consulta los productos cargados en el sistema.</p>
+    </div>
+</header>
+
+<section class="section-block pt-0">
+    <div class="container">
+        <form method="get" class="filter-bar mb-4">
+            <div class="form-row align-items-end">
+                <div class="col-md-6 mb-3">
+                    <label for="q">Buscar producto</label>
+                    <input type="text" class="form-control" id="q" name="q" value="{{ query }}" placeholder="Ej: camiseta, chaqueta, accesorio">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="categoria">Categoría</label>
+                    <select class="form-control" id="categoria" name="categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id_categoria }}" {% if selected_cat == categoria.id_categoria|stringformat:'s' %}selected{% endif %}>{{ categoria.nombre_categoria }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button class="btn btn-primary btn-block" type="submit">Filtrar</button>
+                </div>
+            </div>
+        </form>
+
+        {% if productos %}
+            <div class="row">
+                {% for producto in productos %}
+                    <div class="col-sm-6 col-lg-3 mb-4">
+                        <div class="product-card h-100">
+                            <div class="product-image">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <span>ABADDON</span>
+                                {% endif %}
+                            </div>
+                            <h3>{{ producto.nombre }}</h3>
+                            <p class="text-muted small mb-2">{{ producto.categoria.nombre_categoria }}</p>
+                            <p class="product-price">${{ producto.precio }}</p>
+                            <p class="small {% if producto.stock > 0 %}text-muted{% else %}text-danger{% endif %}">Stock: {{ producto.stock }}</p>
+                            {% if producto.estado and producto.stock > 0 %}
+                                <a href="{% url 'add_to_cart' producto.id_producto %}" class="btn btn-primary btn-block">Agregar</a>
+                            {% else %}
+                                <button class="btn btn-secondary btn-block" disabled>Agotado</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No hay productos disponibles</h3>
+                <p class="mb-0">Carga productos desde el administrador para empezar a mostrar el catálogo.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

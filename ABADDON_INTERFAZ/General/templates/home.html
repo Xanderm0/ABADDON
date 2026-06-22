@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio | Abaddon Store{% endblock %}
+
+{% block hero %}
+<div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#heroCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#heroCarousel" data-slide-to="1"></li>
+        <li data-target="#heroCarousel" data-slide-to="2"></li>
+    </ol>
+
+    <div class="carousel-inner">
+        <div class="carousel-item active" style="background-image: url('/media/banners/banner%20rock.png');">
+            <div class="carousel-caption carousel-caption-center">
+                <span class="hero-kicker">Abaddon Store</span>
+                <h1>ROCK 'N' ROLL</h1>
+                <p>Estilo alternativo para vestir con carácter.</p>
+                <a href="{% url 'producto_list' %}" class="btn btn-primary mt-3">Explorar catálogo</a>
+            </div>
+        </div>
+
+        <div class="carousel-item" style="background-image: url('/media/banners/banner%20rock%202.jpg');">
+            <div class="carousel-caption carousel-caption-center">
+                <span class="hero-kicker">Nueva colección</span>
+                <h1>ACTUALIZA TU ARMARIO</h1>
+                <p>Prendas seleccionadas para una presencia más oscura, urbana y directa.</p>
+                <a href="{% url 'producto_list' %}" class="btn btn-primary mt-3">Ver colección</a>
+            </div>
+        </div>
+
+        <div class="carousel-item" style="background-image: url('/media/banners/banner%20rock%203.png');">
+            <div class="carousel-caption carousel-caption-center">
+                <span class="hero-kicker">Compra asistida</span>
+                <h1>ELIGE TU ESTILO</h1>
+                <p>Te ayudamos a encontrar prendas según disponibilidad, talla y ocasión.</p>
+                <a href="{% url 'quienes_somos' %}" class="btn btn-primary mt-3">Conocer la marca</a>
+            </div>
+        </div>
+    </div>
+
+    <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Anterior</span>
+    </a>
+    <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Siguiente</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section-block intro-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 mb-4 mb-lg-0">
+                <span class="section-kicker">Inicio</span>
+                <h2 class="section-title mb-3">Una tienda alternativa, clara y directa.</h2>
+                <p class="lead text-muted mb-0">
+                    Abaddon Store reúne moda urbana, estética oscura y productos seleccionados para quienes buscan una identidad visual más fuerte sin complicar el proceso de compra.
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <div class="soft-panel">
+                    <h3>Compra simple</h3>
+                    <p class="mb-0">Explora el catálogo, revisa disponibilidad y agrega tus productos al carrito. Si necesitas apoyo, el equipo puede orientarte.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block pt-0">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card h-100">
+                    <h3>Estilo alternativo</h3>
+                    <p>Una estética oscura, urbana y expresiva.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card h-100">
+                    <h3>Selección cuidada</h3>
+                    <p>Productos pensados para combinar identidad y uso diario.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card h-100">
+                    <h3>Atención cercana</h3>
+                    <p>Soporte para resolver dudas antes de comprar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="productos" class="section-block products-preview bg-soft">
+    <div class="container">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end">
+            <div>
+                <span class="section-kicker">Catálogo</span>
+                <h2 class="section-title">Productos destacados</h2>
+            </div>
+            <a href="{% url 'producto_list' %}" class="btn btn-outline-dark mt-3 mt-md-0">Ver todo</a>
+        </div>
+
+        {% if productos_destacados %}
+            <div class="row mt-4">
+                {% for producto in productos_destacados %}
+                    <div class="col-sm-6 col-lg-3 mb-4">
+                        <div class="product-card h-100">
+                            <div class="product-image">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <span>ABADDON</span>
+                                {% endif %}
+                            </div>
+                            <h3>{{ producto.nombre }}</h3>
+                            <p class="product-price">${{ producto.precio }}</p>
+                            <a href="{% url 'add_to_cart' producto.id_producto %}" class="btn btn-primary btn-block">Agregar</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state mt-4">
+                <h3>Catálogo en preparación</h3>
+                <p class="mb-0">Aún no hay productos activos cargados. Cuando agregues productos desde el administrador, aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section-block final-cta">
+    <div class="container text-center">
+        <span class="section-kicker">Abaddon</span>
+        <h2 class="section-title mx-auto">No se trata solo de vestir. Se trata de proyectar una identidad.</h2>
+        <a href="{% url 'quienes_somos' %}" class="btn btn-primary mt-3">Leer más</a>
+    </div>
+</section>
+{% endblock %}
