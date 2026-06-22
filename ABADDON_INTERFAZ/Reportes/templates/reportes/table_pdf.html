@@ -141,6 +141,7 @@
             <th>Correo</th>
             <th>Empleado</th>
             <th>Método de pago</th>
+            <th>Tipo</th>
             <th>Estado</th>
             <th>Fecha</th>
         </tr>
@@ -166,6 +167,7 @@
                     Sin método
                 {% endif %}
             </td>
+            <td>{{ item.get_tipo_venta_display }}</td>
             <td>
                 {% if item.estado %}
                     Activa
@@ -177,7 +179,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="7">No hay ventas registradas.</td>
+            <td colspan="8">No hay ventas registradas.</td>
         </tr>
         {% endfor %}
     </tbody>

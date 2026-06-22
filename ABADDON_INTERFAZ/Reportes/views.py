@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from Productos.models import Producto, Categoria
 from Ventas.models import MetodoPago, Venta
+from Ventas.utils import aplicar_filtros_ventas
 from Usuarios.models import Usuario
 from General.views import is_admin, is_admin_vendedor
 
@@ -11,17 +12,13 @@ from .utils import render_to_pdf
 
 # PANEL CENTRAL DE REPORTES
 
-@user_passes_test(is_admin_vendedor)
+@user_passes_test(is_admin)
 def reportes(request):
     """
-    Muestra el panel central donde se pueden seleccionar reportes
-    y aplicar filtros antes de descargar el PDF.
+    Muestra la vista del reporte general del sistema.
+    Solo puede acceder el administrador.
     """
-    categorias = Categoria.objects.all().order_by('nombre_categoria')
-
-    return render(request, 'reportes/reportes.html', {
-        'categorias': categorias,
-    })
+    return render(request, 'reportes/reportes.html')
 
 # ----- REPORTES INDIVIDUALES -----
 @login_required
@@ -44,6 +41,11 @@ def export_pdf_table(request, model_name):
     rol = request.GET.get('rol', '').strip()
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()
+
+    precio_min = request.GET.get('precio_min', '').strip()
+    precio_max = request.GET.get('precio_max', '').strip()
+    stock_min = request.GET.get('stock_min', '').strip()
+    stock_max = request.GET.get('stock_max', '').strip()
 
     context = {
         'model_type': model_name,
@@ -73,8 +75,29 @@ def export_pdf_table(request, model_name):
         elif estado == 'inactivo':
             items = items.filter(estado=False)
 
+        if precio_min:
+            items = items.filter(precio__gte=precio_min)
+
+        if precio_max:
+            items = items.filter(precio__lte=precio_max)
+
+        if stock_min:
+            items = items.filter(stock__gte=stock_min)
+
+        if stock_max:
+            items = items.filter(stock__lte=stock_max)
+
         context['items'] = items
         context['title'] = 'Reporte de Productos'
+        context['filtros'] = {
+            'query': query,
+            'estado': estado,
+            'categoria': categoria,
+            'precio_min': precio_min,
+            'precio_max': precio_max,
+            'stock_min': stock_min,
+            'stock_max': stock_max,
+        }
 
         return render_to_pdf(
             template,
@@ -122,20 +145,7 @@ def export_pdf_table(request, model_name):
             'detalles__producto'
         ).all().order_by('-fecha')
 
-        if query:
-            items = items.filter(
-                Q(nombre_cliente__icontains=query)
-                | Q(email_cliente__icontains=query)
-                | Q(empleado__nombre__icontains=query)
-                | Q(metodo_pago__nombre__icontains=query)
-                | Q(detalles__producto__nombre__icontains=query)
-            ).distinct()
-
-        if fecha_inicio:
-            items = items.filter(fecha__date__gte=fecha_inicio)
-
-        if fecha_fin:
-            items = items.filter(fecha__date__lte=fecha_fin)
+        items, _ = aplicar_filtros_ventas(request, items)
 
         context['items'] = items
         context['title'] = 'Reporte de Ventas'
@@ -207,25 +217,14 @@ def export_pdf_table(request, model_name):
 @login_required
 def export_pdf_filtrado(request):
     """
-    Recibe el tipo de reporte desde reportes.html y redirige
-    al generador correspondiente.
+    Desde reportes.html solo se genera el reporte general.
+    El filtro de estado se procesa dentro de export_pdf_general.
     """
 
-    tipo_reporte = request.GET.get('tipo_reporte', '').strip()
+    if not is_admin(request.user):
+        return redirect('dashboard')
 
-    if tipo_reporte in ['productos', 'categorias', 'ventas', 'metodos_pago', 'usuarios']:
-        return export_pdf_table(request, tipo_reporte)
-
-    if tipo_reporte == 'ventas_detalle':
-        return export_pdf_ventas_detalle(request)
-
-    if tipo_reporte == 'general':
-        if not is_admin(request.user):
-            return redirect('dashboard')
-
-        return export_pdf_general(request)
-
-    return redirect('reportes')
+    return export_pdf_general(request)
 
 # ----- REPORTE MULTITABLA -----
 @user_passes_test(is_admin_vendedor)
@@ -254,20 +253,7 @@ def export_pdf_ventas_detalle(request):
         'detalles__producto'
     ).all().order_by('-fecha')
 
-    if query:
-        ventas = ventas.filter(
-            Q(nombre_cliente__icontains=query)
-            | Q(email_cliente__icontains=query)
-            | Q(empleado__nombre__icontains=query)
-            | Q(metodo_pago__nombre__icontains=query)
-            | Q(detalles__producto__nombre__icontains=query)
-        ).distinct()
-
-    if fecha_inicio:
-        ventas = ventas.filter(fecha__date__gte=fecha_inicio)
-
-    if fecha_fin:
-        ventas = ventas.filter(fecha__date__lte=fecha_fin)
+    ventas, _ = aplicar_filtros_ventas(request, ventas)
 
     ventas_reporte = []
 
@@ -343,8 +329,14 @@ def export_pdf_inventario(request):
 def export_pdf_general(request):
     """
     Genera un reporte general del sistema.
+    Permite filtrar por estado:
+    - activo
+    - inactivo
+    - todos
     Solo puede acceder el administrador.
     """
+
+    estado = request.GET.get('estado', '').strip().lower()
 
     usuarios = Usuario.objects.all().order_by('nombre')
     categorias = Categoria.objects.all().order_by('nombre_categoria')
@@ -358,8 +350,23 @@ def export_pdf_general(request):
         'detalles__producto'
     ).all().order_by('-fecha')
 
+    if estado == 'activo':
+        usuarios = usuarios.filter(estado=True)
+        categorias = categorias.filter(estado=True)
+        productos = productos.filter(estado=True)
+        metodos_pago = metodos_pago.filter(estado=True)
+        ventas = ventas.filter(estado=True)
+
+    elif estado == 'inactivo':
+        usuarios = usuarios.filter(estado=False)
+        categorias = categorias.filter(estado=False)
+        productos = productos.filter(estado=False)
+        metodos_pago = metodos_pago.filter(estado=False)
+        ventas = ventas.filter(estado=False)
+
     context = {
         'title': 'Reporte General Abaddon',
+        'estado_filtro': estado,
         'usuarios': usuarios,
         'categorias': categorias,
         'productos': productos,

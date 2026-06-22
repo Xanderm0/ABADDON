@@ -28,7 +28,8 @@ class Venta(models.Model):
     empleado = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='id_empleado', null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.CASCADE, db_column='id_metodo_pago')
     TIPO_VENTA = (
-        ('Cotiza', 'Cotiza Online'),
+        ('Online', 'Venta Online'),
+        ('Cotiza', 'Cotización Online'),
         ('Presencial', 'Venta en Tienda'),
     )
     nombre_cliente = models.CharField(max_length=50, validators=[letras_validator], default='Consumidor Final')

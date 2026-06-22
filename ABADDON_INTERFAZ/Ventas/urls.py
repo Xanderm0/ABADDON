@@ -6,7 +6,9 @@ urlpatterns = [
     # Ventas
     path('', views.venta_list, name='venta_list'),
     path('editar/<int:pk>/', views.venta_update, name='venta_update'),
-    path('eliminar/<int:pk>/', views.venta_delete, name='venta_delete'),
+    path('anular/<int:pk>/', views.venta_delete, name='venta_anular'),
+    path('eliminar/<int:pk>/', views.venta_delete, name='venta_delete'),  # Compatibilidad con enlaces antiguos: también anula.
+    path('eliminar-definitivo/<int:pk>/', views.venta_delete_permanent, name='venta_delete_real'),
     path('detalle_venta/<int:pk>', views.detalle_venta, name="detalle_venta"),
 
     # Carrito

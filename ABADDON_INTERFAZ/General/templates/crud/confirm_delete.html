@@ -7,7 +7,7 @@
 <section class="ab-panel ab-form-panel">
     <div class="ab-panel-heading">
         <h2>{{ title }}</h2>
-        <p>Esta acción inactivará el registro seleccionado sin borrarlo de la base de datos. Revisa antes de confirmar.</p>
+        <p>{{ message|default:"Esta acción inactivará el registro seleccionado sin borrarlo de la base de datos. Revisa antes de confirmar." }}</p>
     </div>
 
     <div class="ab-delete-box">
@@ -18,7 +18,7 @@
     <form method="post">
         {% csrf_token %}
         <div class="ab-form-actions">
-            <button type="submit" class="btn btn-danger">Sí, confirmar</button>
+            <button type="submit" class="btn btn-danger">{{ button_text|default:"Sí, confirmar" }}</button>
 
             {% if cancel_url %}
                 <a href="{% url cancel_url %}" class="btn btn-outline-dark">Cancelar</a>

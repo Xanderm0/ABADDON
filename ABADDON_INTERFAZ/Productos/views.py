@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from General.forms import CategoriaForm, ProductoForm
-from General.views import is_vendedor, is_admin
+from General.views import is_vendedor, is_admin, is_admin_vendedor
 from .models import Categoria, Producto
 
 from django.db import transaction
@@ -48,26 +48,67 @@ def filtro_cat(request):
 
 # --- GESTIÓN DE PRODUCTOS ---
 
-@user_passes_test(is_vendedor)
+@user_passes_test(is_admin_vendedor)
 def producto_admin_list(request):
-    """Lista todos los productos con opciones de búsqueda y filtrado para administración."""
-    query = request.GET.get('q', '').strip()
-    cat_id = request.GET.get('categoria', '').strip()
+    q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip().lower()
+    categoria = request.GET.get('categoria', '').strip()
+
+    precio_min = request.GET.get('precio_min', '').strip()
+    precio_max = request.GET.get('precio_max', '').strip()
+    stock_min = request.GET.get('stock_min', '').strip()
+    stock_max = request.GET.get('stock_max', '').strip()
 
     productos = Producto.objects.select_related('categoria').all().order_by('nombre')
-
-    if query:
-        productos = productos.filter(Q(nombre__icontains=query) | Q(nombre__istartswith=query))
-
-    if cat_id:
-        productos = productos.filter(categoria_id=cat_id)
-
     categorias = Categoria.objects.all().order_by('nombre_categoria')
+
+    if q:
+        productos = productos.filter(
+            Q(nombre__icontains=q)
+            | Q(descripcion__icontains=q)
+            | Q(categoria__nombre_categoria__icontains=q)
+        )
+
+    if categoria:
+        productos = productos.filter(categoria_id=categoria)
+
+    if estado == 'activo':
+        productos = productos.filter(estado=True)
+    elif estado == 'inactivo':
+        productos = productos.filter(estado=False)
+
+    if precio_min:
+        try:
+            productos = productos.filter(precio__gte=Decimal(precio_min))
+        except InvalidOperation:
+            pass
+
+    if precio_max:
+        try:
+            productos = productos.filter(precio__lte=Decimal(precio_max))
+        except InvalidOperation:
+            pass
+
+    if stock_min:
+        try:
+            productos = productos.filter(stock__gte=int(stock_min))
+        except ValueError:
+            pass
+
+    if stock_max:
+        try:
+            productos = productos.filter(stock__lte=int(stock_max))
+        except ValueError:
+            pass
+    
+    if estado == 'activo':
+        productos = productos.filter(estado=True)
+    elif estado == 'inactivo':
+        productos = productos.filter(estado=False)
+
     return render(request, 'producto_admin_list.html', {
         'productos': productos,
         'categorias': categorias,
-        'query': query,
-        'selected_cat': cat_id,
     })
 
 

@@ -164,13 +164,21 @@
 
                         <td>
                             <center>
-                                <a href="{% url 'venta_update' venta.id_venta %}">
+                                <a href="{% url 'venta_update' venta.id_venta %}" title="Editar venta">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
 
-                                <a href="{% url 'venta_delete' venta.id_venta %}">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </a>
+                                {% if venta.estado %}
+                                    <a href="{% url 'venta_anular' venta.id_venta %}" title="Anular venta y devolver stock">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </a>
+                                {% endif %}
+
+                                {% if request.user.rol == 'Administrador' %}
+                                    <a href="{% url 'venta_delete_real' venta.id_venta %}" title="Eliminar definitivamente">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                {% endif %}
                             </center>
                         </td>
                     </tr>

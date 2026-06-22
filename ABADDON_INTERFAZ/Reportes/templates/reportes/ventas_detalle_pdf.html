@@ -86,6 +86,7 @@
         <p><strong>Cliente:</strong> {{ bloque.venta.nombre_cliente }}</p>
         <p><strong>Correo:</strong> {{ bloque.venta.email_cliente }}</p>
         <p><strong>Fecha:</strong> {{ bloque.venta.fecha|date:"d/m/Y H:i" }}</p>
+        <p><strong>Tipo:</strong> {{ bloque.venta.get_tipo_venta_display }}</p>
         <p>
             <strong>Estado:</strong>
             {% if bloque.venta.estado %}

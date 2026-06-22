@@ -20,7 +20,7 @@
                 <i class="bi bi-cloud-upload-fill"></i>
             </a>
             {% endif %}
-            <a href="{% url 'export_pdf_table' 'productos' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark">
+            <a href="{% url 'export_pdf_table' 'productos' %}?{{ request.GET.urlencode }}" class="btn btn-outline-dark" title="Descargar PDF">
                 <i class="bi bi-filetype-pdf"></i>
             </a>
         </div>
@@ -28,12 +28,71 @@
 
     <form method="get" class="filter-bar ab-admin-filter mb-4">
         <div class="form-row align-items-end">
-            <div class="col-md-7 mb-3">
+            <div class="col-md-8 mb-3">
                 <label for="q">Buscar producto</label>
-                <input type="text" class="form-control" id="q" name="q" value="{{ query }}" placeholder="Nombre del producto.">
+                <input type="text" class="form-control" id="q" name="q" value="{{ query }}" placeholder="Nombre del producto">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label for="stock_min">Stock mín</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="stock_min"
+                    name="stock_min"
+                    min="0"
+                    value="{{ request.GET.stock_min }}"
+                    placeholder="Ej: 1"
+                >
             </div>
 
-            <div class="col-md-4 mb-3">
+            <div class="col-md-2 mb-3">
+                <label for="stock_max">Stock máx</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="stock_max"
+                    name="stock_max"
+                    min="0"
+                    value="{{ request.GET.stock_max }}"
+                    placeholder="Ej: 20"
+                >
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="precio_min">Precio mínimo</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="precio_min"
+                    name="precio_min"
+                    min="0"
+                    step="0.01"
+                    value="{{ request.GET.precio_min }}"
+                    placeholder="Ej: 10000"
+                >
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="precio_max">Precio máximo</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="precio_max"
+                    name="precio_max"
+                    min="0"
+                    step="0.01"
+                    value="{{ request.GET.precio_max }}"
+                    placeholder="Ej: 80000"
+                >
+            </div>
+            <div class="col-md-2 mb-3">
+                <label for="estado">Estado</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if request.GET.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
                 <label for="categoria">Categoría</label>
                 <select class="form-control" id="categoria" name="categoria">
                     <option value="">Todas</option>
