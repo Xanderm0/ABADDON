@@ -39,7 +39,7 @@ SECRET_KEY = os.getenv(
 
 DEBUG = env_bool('DEBUG', True)
 
-ALLOWED_HOSTS = ('javierotalora.pythonanywhere.com')
+ALLOWED_HOSTS = ['javierotalora.pythonanywhere.com']
 
 
 # =========================
