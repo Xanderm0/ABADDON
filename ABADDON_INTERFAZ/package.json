@@ -1,0 +1,13 @@
+{
+  "name": "abaddon-cypress-hosting",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:hosting": "cypress run --browser chrome --config baseUrl=https://javierotalora.pythonanywhere.com"
+  },
+  "devDependencies": {
+    "cypress": "^14.5.0"
+  }
+}
