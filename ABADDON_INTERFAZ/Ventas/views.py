@@ -8,6 +8,7 @@ from django.db import transaction
 from General.forms import VentaForm, CheckoutForm, MetodoPagoForm
 from General.views import is_vendedor, is_admin
 from .models import Venta, DetalleVenta, MetodoPago
+from .utils import aplicar_filtros_ventas, devolver_stock_venta, obtener_tipos_venta_disponibles
 from Productos.models import Producto
 from Auditoria.models import Auditoria
 from decimal import Decimal
@@ -134,57 +135,25 @@ def remove_from_cart(request, product_id):
 
 @user_passes_test(is_vendedor)
 def venta_list(request):
-    """Lista ventas con búsqueda, fechas, tipo de venta, método de pago y estado."""
-    query = request.GET.get('q', '').strip()
-    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
-    fecha_fin = request.GET.get('fecha_fin', '').strip()
-    selected_tipo_venta = request.GET.get('tipo_venta', '').strip()
-    selected_metodo_pago = request.GET.get('metodo_pago', '').strip()
-    selected_estado = request.GET.get('estado', '').strip()
-
-    ventas = Venta.objects.select_related(
+    """Lista ventas con los mismos filtros que se usan en los reportes PDF."""
+    ventas_base = Venta.objects.select_related(
         'empleado',
         'metodo_pago'
+    ).prefetch_related(
+        'detalles__producto'
     ).all().order_by('-fecha')
 
-    if query:
-        ventas = ventas.filter(
-            Q(nombre_cliente__icontains=query)
-            | Q(email_cliente__icontains=query)
-            | Q(empleado__nombre__icontains=query)
-            | Q(detalles__producto__nombre__icontains=query)
-        ).distinct()
+    ventas, filtros = aplicar_filtros_ventas(request, ventas_base)
 
-    if fecha_inicio:
-        ventas = ventas.filter(fecha__date__gte=fecha_inicio)
-
-    if fecha_fin:
-        ventas = ventas.filter(fecha__date__lte=fecha_fin)
-
-    if selected_tipo_venta:
-        ventas = ventas.filter(tipo_venta=selected_tipo_venta)
-
-    if selected_metodo_pago:
-        ventas = ventas.filter(metodo_pago_id=selected_metodo_pago)
-
-    if selected_estado == 'activa':
-        ventas = ventas.filter(estado=True)
-    elif selected_estado == 'anulada':
-        ventas = ventas.filter(estado=False)
-
-    return render(request, 'venta_list.html', {
+    context = {
         'ventas': ventas,
-        'query': query,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin,
-        'selected_tipo_venta': selected_tipo_venta,
-        'selected_metodo_pago': selected_metodo_pago,
-        'selected_estado': selected_estado,
-        'tipos_venta': Venta.TIPO_VENTA,
+        'tipos_venta': obtener_tipos_venta_disponibles(),
         'metodos_pago': MetodoPago.objects.all().order_by('nombre'),
         'total_ventas_filtradas': ventas.count(),
-    })
+    }
+    context.update(filtros)
 
+    return render(request, 'venta_list.html', context)
 
 @user_passes_test(is_admin)
 def venta_update(request, pk):
@@ -202,17 +171,70 @@ def venta_update(request, pk):
 
 
 @user_passes_test(is_vendedor)
+@transaction.atomic
 def venta_delete(request, pk):
-    """Anula una venta sin eliminarla del historial."""
-    venta = get_object_or_404(Venta, pk=pk)
+    """Anula una venta, conserva su historial y devuelve el stock una sola vez."""
+    venta = get_object_or_404(
+        Venta.objects.select_for_update().prefetch_related('detalles__producto'),
+        pk=pk
+    )
+
     if request.method == 'POST':
+        if not venta.estado:
+            messages.warning(request, 'Esta venta ya estaba anulada. No se volvió a devolver stock.')
+            return redirect('venta_list')
+
+        unidades_reintegradas = devolver_stock_venta(venta)
         venta.estado = False
         venta.save(update_fields=['estado'])
-        messages.success(request, 'Venta anulada correctamente.')
+
+        messages.success(
+            request,
+            f'Venta anulada correctamente. Se devolvieron {unidades_reintegradas} unidades al inventario.'
+        )
         return redirect('venta_list')
+
     return render(request, 'crud/confirm_delete.html', {
         'obj': venta,
         'title': 'Anular Venta',
+        'message': 'Esta acción anulará la venta, conservará el historial y devolverá al inventario las unidades vendidas. No uses esta opción para borrar pruebas o registros duplicados.',
+        'button_text': 'Sí, anular venta',
+        'cancel_url': 'venta_list',
+    })
+
+
+@user_passes_test(is_admin)
+@transaction.atomic
+def venta_delete_permanent(request, pk):
+    """Elimina definitivamente una venta. Solo administrador."""
+    venta = get_object_or_404(
+        Venta.objects.select_for_update().prefetch_related('detalles__producto'),
+        pk=pk
+    )
+
+    if request.method == 'POST':
+        unidades_reintegradas = 0
+
+        if venta.estado:
+            unidades_reintegradas = devolver_stock_venta(venta)
+
+        venta.delete()
+
+        if unidades_reintegradas:
+            messages.success(
+                request,
+                f'Venta eliminada definitivamente. Como estaba activa, se devolvieron {unidades_reintegradas} unidades al inventario.'
+            )
+        else:
+            messages.success(request, 'Venta eliminada definitivamente.')
+
+        return redirect('venta_list')
+
+    return render(request, 'crud/confirm_delete.html', {
+        'obj': venta,
+        'title': 'Eliminar Venta Definitivamente',
+        'message': 'Esta acción borrará la venta y sus detalles de la base de datos. Úsala solo para registros de prueba, duplicados o errores reales de captura. Si la venta está activa, primero se devolverá su stock.',
+        'button_text': 'Sí, eliminar definitivamente',
         'cancel_url': 'venta_list',
     })
 
